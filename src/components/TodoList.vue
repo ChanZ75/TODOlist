@@ -35,7 +35,7 @@
   </div>
 </template>
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 const input = ref('')
 const itemList = ref([])
 
@@ -50,13 +50,11 @@ function addItem() {
     itemList.value.unshift(item)
     input.value = ''
   }
-  saveData()
 }
 //删除待办事项
 function delItem(item) {
   const index = itemList.value.indexOf(item)
   itemList.value.splice(index, 1)
-  saveData()
 }
 
 //已完成的事项置底
@@ -72,26 +70,22 @@ function handleCheck(item) {
     itemList.value.splice(index, 1)
     itemList.value.unshift(item)
   }
-  saveData()
 }
 //待办事项为空时删除
 function checkItem(item) {
   if (item.label == '') {
     delItem(item)
   }
-  saveData()
 }
 //全部完成
 function allDone() {
   itemList.value.forEach((item) => {
     item.done = true
   })
-  saveData()
 }
 //批量清理
 function cleanDone() {
   itemList.value = itemList.value.filter((item) => !item.done)
-  saveData()
 }
 //将数据保存在localStorage中
 function saveData() {
@@ -106,6 +100,16 @@ function loadData() {
     itemList.value = JSON.parse(data)
   }
 }
+//当itemList改变时保存数据
+watch(
+  itemList,
+  () => {
+    saveData()
+  },
+  { deep: true }
+)
+
+
 loadData()
 </script>
 
@@ -128,9 +132,6 @@ loadData()
   }
   .button {
     margin-left: 100px;
-  }
-  .el-input {
-    border-radius: 20px;
   }
   .el-input__wrapper {
     border-radius: 20px;
